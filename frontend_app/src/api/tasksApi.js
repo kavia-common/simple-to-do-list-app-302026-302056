@@ -24,8 +24,25 @@ async function toApiError(response) {
   return err;
 }
 
+function getApiBaseUrl() {
+  /**
+   * Resolve API base URL from environment.
+   *
+   * Supported env vars:
+   * - REACT_APP_API_BASE (preferred; per task instruction)
+   * - REACT_APP_API_BASE_URL (backward compatible with existing .env.example)
+   */
+  const raw =
+    process.env.REACT_APP_API_BASE ||
+    process.env.REACT_APP_API_BASE_URL ||
+    DEFAULT_BASE_URL;
+
+  // Normalize trailing slash so `${base}${path}` doesn't become `//tasks`.
+  return raw.replace(/\/+$/, "");
+}
+
 async function request(path, options = {}) {
-  const baseUrl = process.env.REACT_APP_API_BASE_URL || DEFAULT_BASE_URL;
+  const baseUrl = getApiBaseUrl();
   const url = `${baseUrl}${path}`;
 
   const res = await fetch(url, {
